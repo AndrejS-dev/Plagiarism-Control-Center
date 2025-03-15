@@ -1,13 +1,6 @@
 import streamlit as st
 from security import check_password, check_api_key
-from layout import create_header, set_background, emptylines, title
 from mainloop import mainloop
-
-# Set up layout and background
-#create_header()
-title()
-set_background()
-emptylines()
 
 # Initialize session state
 if "password_verified" not in st.session_state:
@@ -53,6 +46,35 @@ if st.session_state.password_verified and not st.session_state.api_key_verified:
 # Main form submission section
 if st.session_state.password_verified and st.session_state.api_key_verified:
     if "api_key" in st.session_state:
+        notes = st.expander("Notes")
+        notes.markdown("""
+        ### 1. How Plagiarism Check Is Performed
+        - The target string is broken down into substrings of a specific length (depth).
+        - These substrings are compared against records in the database to identify overlaps.
+        - Overlaps are analyzed using forward (1st order) and backward (2nd order) checks.
+
+        ### 2. Depth
+        - **Definition**: Depth refers to the length of each substring.
+        - Example: For depth = 3, the string "abcde" produces substrings `['abc', 'bcd', 'cde']`.
+
+        ### 3. Significance Threshold
+        - **Definition**: The minimum overlap percentage required to include a record in the results.
+        - Records with overlay percentages below this threshold are excluded from the output.
+
+        ### 4. 1st Order vs. 2nd Order Overlays
+        - **1st Order Overlay**: Percentage of substrings from the target string found in another record.
+        - **2nd Order Overlay**: Percentage of substrings from another record found in the target string.
+        - Example:
+          - Target string substrings: `['abc', 'bcd', 'cde']`.
+          - Other record substrings: `['abc', 'bcd', 'xyz', 'xyx']`.
+          - **1st Order**: 2/3 = 66.67%.
+          - **2nd Order**: 2/4 = 50%.
+
+        ### Additional Information
+        - Both overlays are used to provide a two-way comparison.
+        - Outputs are filtered using the significance threshold for clarity and relevance.
+
+        """)
         mainloop(st.session_state.api_key)
     else:
         st.error("API key is missing. Please re-enter the API key.")
